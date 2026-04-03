@@ -7,6 +7,7 @@
 ---
 
 ## Project Structure
+**𝓢𝓐𝓛𝓘𝓗🪽** - [GitHub](https://github.com/tmsay1)) - [Discord](https://discord.gg/567gVhHWMJ))
 
 ```text
 app/
@@ -39,3 +40,4 @@ Developed by Tik Nova Studio
 
 GitHub:
 https://github.com/tmsay1
+
