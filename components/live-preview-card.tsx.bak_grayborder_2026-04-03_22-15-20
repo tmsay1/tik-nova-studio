@@ -1,0 +1,330 @@
+"use client"
+
+import { useCallback, useEffect, useRef, useState } from "react"
+import { Star, Play, Settings, Smartphone, Heart, Gift, Trophy, UserPlus } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { LikeButton } from "@/components/like-button"
+import { cn } from "@/lib/utils"
+
+const DISCORD_LINK = "https://discord.gg/gTEzyDqaGj"
+
+interface LivePreviewCardProps {
+  title: string
+  description: string
+  previewCode: string
+  rating: number
+  category: string
+  onViewDetails?: () => void
+  priority?: boolean
+}
+
+
+function getCardTitleIcon(title: string) {
+  const t = title.toLowerCase()
+
+  if (
+    t.includes("gift") ||
+    t.includes("هدية") ||
+    t.includes("الهدايا")
+  ) {
+    return <Gift className="h-4 w-4 text-red-400" />
+  }
+
+  if (
+    t.includes("rank") ||
+    t.includes("top") ||
+    t.includes("ترتيب") ||
+    t.includes("داعم") ||
+    t.includes("الداعمين")
+  ) {
+    return <Trophy className="h-4 w-4 text-red-400" />
+  }
+
+  if (
+    t.includes("follow") ||
+    t.includes("followe") ||
+    t.includes("متابعة")
+  ) {
+    return <UserPlus className="h-4 w-4 text-red-400" />
+  }
+
+  if (
+    t.includes("like") ||
+    t.includes("heart") ||
+    t.includes("اعجاب") ||
+    t.includes("الإعجاب") ||
+    t.includes("القلب")
+  ) {
+    return <Heart className="h-4 w-4 text-red-400" />
+  }
+
+  return <Smartphone className="h-4 w-4 text-red-400" />
+}
+
+
+export function LivePreviewCard({
+  title,
+  description,
+  previewCode,
+  rating,
+  category,
+  onViewDetails,
+  priority = false,
+}: LivePreviewCardProps) {
+  const handleDiscordRedirect = () => {
+    window.open(DISCORD_LINK, "_blank")
+  }
+
+  // Create a blob URL for the iframe content
+  const iframeContent = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <style>
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body { 
+            background: #0a0a0a; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 100vh;
+            overflow: hidden;
+            font-family: system-ui, -apple-system, sans-serif;
+          }
+        </style>
+      </head>
+      <body>
+        ${previewCode}
+      </body>
+    </html>
+  
+
+`
+
+  const [detailsOpen, setDetailsOpen] = useState(false)
+  const [iframeLoaded, setIframeLoaded] = useState(false)
+  const [testNonce, setTestNonce] = useState(0)
+  const iframeRef = useRef<HTMLIFrameElement | null>(null)
+  const pendingTestRef = useRef(false)
+
+  const handleOpenPreview = () => {
+    const newWindow = window.open("", "_blank", "noopener,noreferrer")
+    if (!newWindow) return
+
+    newWindow.document.write(iframeContent)
+    newWindow.document.close()
+    newWindow.document.title = title + " Preview"
+  }
+
+  const handleAddToCart = () => {
+    window.open(DISCORD_LINK, "_blank")
+  }
+
+  const handleDetailsClick = () => {
+    if (onViewDetails) {
+      try {
+        onViewDetails()
+      } catch (e) {}
+    }
+    setDetailsOpen(true)
+  }
+
+  const handleTestPreview = () => {
+    pendingTestRef.current = true
+    setIframeLoaded(false)
+    setTestNonce((n) => n + 1)
+  }
+
+
+
+  const sendTestData = useCallback(() => {
+    const frameWin = iframeRef.current?.contentWindow
+    if (!frameWin) return
+
+    const sample = {
+      user: "Ahmed",
+      username: "Ahmed",
+      name: "Ahmed",
+      avatar: "https://i.postimg.cc/mrJvXWfR/Whats-App-Image-2026-03-26-at-12-43-46-AM.jpg",
+      count: 12,
+      likes: 1250,
+      goal: 5000,
+      current: 1250,
+      target: 5000,
+      percent: 25,
+      value: 1250,
+      coins: 99,
+      score: 125700,
+      text: "شكراً على المتابعة",
+      message: "شكراً على المتابعة",
+      rank1: { name: "Ahmed", score: 125700, avatar: "https://i.postimg.cc/mrJvXWfR/Whats-App-Image-2026-03-26-at-12-43-46-AM.jpg" },
+      rank2: { name: "Salih", score: 99000, avatar: "https://i.postimg.cc/mrJvXWfR/Whats-App-Image-2026-03-26-at-12-43-46-AM.jpg" },
+      rank3: { name: "User", score: 76200, avatar: "https://i.postimg.cc/mrJvXWfR/Whats-App-Image-2026-03-26-at-12-43-46-AM.jpg" },
+    }
+
+    const maybeCall = (name: string, payload: any) => {
+      try {
+        const fn = (frameWin as any)[name]
+        if (typeof fn === "function") {
+          fn(payload)
+          return true
+        }
+      } catch {}
+      return false
+    }
+
+    maybeCall("setTopGift", sample) ||
+    maybeCall("setGiftGoal", sample) ||
+    maybeCall("setLikeGoal", sample) ||
+    maybeCall("setFollowGoal", sample) ||
+    maybeCall("setFollowOverlay", sample) ||
+    maybeCall("setLiveLike", sample) ||
+    maybeCall("setLikeOverlay", sample) ||
+    maybeCall("setTopRanking", sample) ||
+    maybeCall("setTop5Ranking", sample) ||
+    maybeCall("setTop10Supporters", sample) ||
+    maybeCall("setLeaderboard", sample) ||
+    maybeCall("setPodium", sample) ||
+    maybeCall("setPlatformsRotator", sample)
+
+    try {
+      frameWin.dispatchEvent(new CustomEvent("preview:test", { detail: sample }))
+    } catch {}
+
+    try {
+      frameWin.postMessage({ type: "preview:test", payload: sample }, "*")
+    } catch {}
+  }, [])
+
+  return (
+    <div className="group relative overflow-hidden rounded-3xl border border-red-500/35 bg-[radial-gradient(circle_at_top,rgba(255,0,0,0.18),transparent_35%),linear-gradient(180deg,#090909_0%,#0d0000_55%,#120000_100%)] backdrop-blur-sm transition-all duration-500 shadow-[0_0_0_1px_rgba(255,0,0,0.25),0_0_18px_rgba(255,0,0,0.18),0_10px_30px_rgba(0,0,0,0.26)] hover:scale-[1.015] hover:border-transparent hover:shadow-[0_0_0_1px_rgba(255,0,0,0.35),0_0_25px_rgba(255,0,0,0.22),0_14px_40px_rgba(0,0,0,0.35)]">
+      {/* Glow effect overlay */}
+      <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100">
+        <div className="absolute inset-0 bg-gradient-to-t from-primary/15 via-transparent to-transparent" />
+      </div>
+
+
+      <div className="border-b border-white/5 bg-[#232529]/70 px-4 py-3 text-right backdrop-blur-sm">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-primary">
+            <span className="inline-block h-2.5 w-2.5 rounded-full bg-primary shadow-[0_0_10px_rgba(255,0,0,0.45)]" />
+          </div>
+
+          <div className="min-w-0">
+            <h3 className="truncate text-base font-bold text-foreground sm:text-lg">
+              {/*title-with-icon*/}<span className="inline-flex items-center gap-2">{getCardTitleIcon(title)}<span>{title}</span></span>
+            </h3>
+          </div>
+        </div>
+      </div>
+
+      <div className="px-5 pt-4">
+        <div className="flex items-center gap-2">
+          <Button
+            type="button"
+            size="sm"
+            variant="secondary"
+            onClick={() => navigator.clipboard.writeText("متوفر على تطبيق Tik Nova")}
+            className="h-8 rounded-md border border-white/10 bg-white/10 px-4 text-sm text-white hover:bg-white/15"
+          >
+            نسخ
+          </Button>
+
+          <div className="flex h-8 flex-1 items-center rounded-md border border-white/5 bg-[#232529]/70 px-3 backdrop-blur-sm"><span className="truncate text-sm text-white/70">متوفر على تطبيق Tik Nova</span></div>
+
+          <Button
+            type="button"
+            size="icon"
+            variant="outline"
+            onClick={handleTestPreview}
+            className="h-8 w-8 rounded-md border-yellow-500/40 bg-yellow-500/20 text-yellow-300 hover:border-yellow-400 hover:bg-yellow-500/30"
+            title="تشغيل"
+          >
+            <Play className="h-4 w-4 fill-current" />
+          </Button>
+
+          <Button
+            type="button"
+            size="icon"
+            variant="outline"
+            onClick={() => {}}
+            className="h-8 w-8 rounded-md border-red-500/40 bg-red-500/15 text-red-400 hover:border-red-400 hover:bg-red-500/25"
+            title="الإعدادات"
+          >
+            <Settings className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+
+      {/* Live Preview Area - Large iframe container */}
+      <div className="relative aspect-[16/9] min-h-[300px] overflow-hidden bg-black/35 lg:min-h-[350px]">
+        {!iframeLoaded && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-gradient-to-br from-[#120202] via-[#0a0101] to-black">
+            <div className="absolute inset-0 opacity-70">
+              <div className="h-full w-full animate-pulse bg-[radial-gradient(circle_at_center,rgba(255,0,0,0.10),transparent_38%),linear-gradient(90deg,rgba(255,255,255,0.02),rgba(255,255,255,0.00),rgba(255,255,255,0.02))]" />
+            </div>
+            <div className="relative z-10 text-center">
+              <div className="mx-auto mb-3 h-12 w-12 rounded-2xl border border-primary/40 bg-primary/10 shadow-[0_0_25px_rgba(255,0,0,0.18)]" />
+              <div className="text-sm font-semibold text-white/90">{title}</div>
+              <div className="mt-1 text-xs text-white/45">Loading preview...</div>
+            </div>
+          </div>
+        )}
+
+        <iframe
+          key={testNonce}
+          ref={iframeRef}
+          srcDoc={iframeContent}
+          className={`h-full w-full border-0 translate-x-4 transition-opacity duration-300 ${iframeLoaded ? "opacity-100" : "opacity-0"}`}
+          sandbox="allow-scripts"
+          loading="eager"
+          title={`Live preview of ${title}`}
+          onLoad={() => {
+            setIframeLoaded(true)
+            if (pendingTestRef.current) {
+              pendingTestRef.current = false
+              requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                  sendTestData()
+                })
+              })
+            }
+          }}
+        />
+        </div>
+
+      {/* Content Area */}
+      <div className="px-5 pb-5 pt-4">
+        {/* Rating Stars */}
+
+      </div>
+      {detailsOpen && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 p-4">
+          <div className="w-full max-w-2xl rounded-2xl border border-primary/40 bg-card p-5 shadow-2xl">
+            <div className="mb-4 flex items-center justify-between gap-4">
+              <div>
+                <h3 className="text-xl font-bold text-foreground">{title}</h3>
+                <p className="text-sm text-muted-foreground">
+                  Live product details and quick preview
+                </p>
+              </div>
+            </div>
+
+            <div className="overflow-hidden rounded-xl border border-border/50">
+              <iframe
+                srcDoc={iframeContent}
+                className="h-[70vh] w-full border-0 bg-black"
+                title={`${title} details preview`}
+                sandbox="allow-scripts"
+              />
+            </div>
+
+            <div className="mt-4 flex flex-wrap gap-3">
+            </div>
+          </div>
+        </div>
+      )}
+
+    </div>
+  )
+}

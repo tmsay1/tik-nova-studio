@@ -1,0 +1,173 @@
+"use client"
+
+import { useEffect, useState } from "react"
+import { SidebarNav } from "@/components/sidebar-nav"
+import { SocialFooter } from "@/components/social-footer"
+import { DesignShowcase } from "@/components/sections/design-showcase"
+import { ClientProjects } from "@/components/sections/client-projects"
+import { CustomOrders } from "@/components/sections/custom-orders"
+import { Sparkles, Bot } from "lucide-react"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+
+export default function Home() {
+  const [activeSection, setActiveSection] = useState("designs")
+
+  useEffect(() => {
+    const section = new URLSearchParams(window.location.search).get("section")
+    if (section === "designs" || section === "projects" || section === "custom") {
+      setActiveSection(section)
+    }
+  }, [])
+
+  const renderSection = () => {
+    switch (activeSection) {
+      case "designs":
+        return <DesignShowcase />
+      case "projects":
+        return <ClientProjects />
+      case "store":
+      case "custom":
+        return <CustomOrders />
+      default:
+        return <DesignShowcase />
+    }
+  }
+
+  return (
+    <div className="relative isolate relative isolate min-h-screen bg-background">
+      {/* Background effects */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden">
+        {/* Gradient orbs */}
+        <div className="absolute -left-40 -top-40 h-80 w-80 rounded-full bg-primary/10 blur-[100px]" />
+        <div className="absolute -bottom-40 -right-40 h-80 w-80 rounded-full bg-primary/10 blur-[100px]" />
+        <div className="absolute left-1/2 top-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/5 blur-[120px]" />
+        {/* Grid pattern */}
+        <div
+          className="absolute inset-0 opacity-[0.02]"
+          style={{
+            backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+                             linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
+            backgroundSize: "50px 50px",
+          }}
+        />
+      </div>
+
+
+      <div aria-hidden="true" className="tk-bg fixed inset-0 pointer-events-none -z-10 overflow-hidden">
+        <div className="tk-bg__base"></div>
+        <div className="tk-bg__vignette"></div>
+        <div className="tk-bg__glow tk-bg__glow--a"></div>
+        <div className="tk-bg__glow tk-bg__glow--b"></div>
+        <div className="tk-bg__symbol">
+          <div className="tk-bg__ring"></div>
+          <div className="tk-bg__letters">TK</div>
+          <div className="tk-bg__wing">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+      </div>
+
+
+      <div aria-hidden="true" className="tik-bg fixed inset-0 pointer-events-none -z-10 overflow-hidden">
+        <div className="tik-bg__base"></div>
+        <div className="tik-bg__vignette"></div>
+        <div className="tik-bg__glow tik-bg__glow--1"></div>
+        <div className="tik-bg__glow tik-bg__glow--2"></div>
+        <div className="tik-bg__glow tik-bg__glow--3"></div>
+
+        <div className="tik-bg__center">
+          <div className="tik-bg__tik">TIK</div>
+          <div className="tik-bg__pulse"></div>
+        </div>
+
+        <div className="tik-bg__wing tik-bg__wing--left">
+          <span></span><span></span><span></span>
+        </div>
+        <div className="tik-bg__wing tik-bg__wing--right">
+          <span></span><span></span><span></span>
+        </div>
+
+        <div className="tik-bg__particles"></div>
+      </div>
+
+      {/* Sidebar Navigation */}
+      <SidebarNav activeSection={activeSection} onSectionChange={setActiveSection} />
+
+      {/* Main Content */}
+      <main className="relative px-6 pb-8 pr-24 lg:px-12 lg:pr-28">
+        {/* Header */}
+        <header className="pb-8 pt-12">
+          <div className="w-full max-w-none">
+            {/* Logo / Brand */}
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="relative flex h-14 w-14 items-center justify-center rounded-xl border border-primary/50 bg-gradient-to-br from-primary/20 to-transparent shadow-[0_0_30px_rgba(180,50,50,0.3)]">
+                  <Sparkles className="h-7 w-7 text-primary" />
+                  <div className="absolute inset-0 rounded-xl bg-primary/10 blur-md" />
+                </div>
+                <div>
+                  <h1 className="brand-title relative text-3xl font-bold">
+                    <span className="brand-title__text">Tik Nova Studio</span>
+                    <span aria-hidden="true" className="brand-title__sparks"></span>
+                  </h1>
+                  <p className="text-sm text-muted-foreground">
+                    تصاميم واجهات احترافية • أوفرلايز بث • حلول مخصصة
+                  </p>
+                </div>
+              </div>
+
+              {/* Discord Bots Link */}
+              <Link href="/bots">
+                <Button 
+                  variant="outline" 
+                  className="border-primary/50 hover:border-primary hover:bg-primary/10 hover:shadow-[0_0_15px_rgba(180,50,50,0.3)]"
+                >
+                  <Bot className="mr-2 h-4 w-4" />
+                  بوتاتي
+                  الديسكورد
+                </Button>
+              </Link>
+            </div>
+
+            {/* Section Title */}
+            <div className="mt-8 border-b border-border/30 pb-4">
+              <nav className="flex flex-wrap gap-1">
+                {["designs", "projects", "store", "custom"].map((section) => (
+                  <button
+                    key={section}
+                    onClick={() => setActiveSection(section)}
+                    className={`rounded-lg px-4 py-2 text-sm font-medium capitalize transition-all duration-200 ${
+                      activeSection === section
+                        ? "bg-primary/20 text-primary shadow-[0_0_15px_rgba(180,50,50,0.3)]"
+                        : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                    }`}
+                  >
+                    {section === "designs"
+                      ? "المعرض المباشر"
+                      : section === "projects"
+                        ? "أعمال مختارة"
+                        : section === "store"
+                          ? ""
+                          : "الطلبات الخاصة"}
+                  </button>
+                ))}
+              </nav>
+            </div>
+          </div>
+        </header>
+
+        {/* Content Section */}
+        <div className="mr-0 ml-auto w-full max-w-7xl -translate-x-1 -translate-x-2">{renderSection()}</div>
+      </main>
+
+      {/* Footer */}
+      <SocialFooter />
+    </div>
+  )
+}

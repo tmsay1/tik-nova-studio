@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Rajdhani:wght@600;700&display=swap');
+
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{
+  width:700px;height:280px;
+  background:transparent;
+  overflow:hidden;
+}
+
+#scene{
+  width:700px;height:280px;
+  position:relative;
+  background:transparent;
+}
+
+/* ── CANVAS LAYERS ── */
+canvas{position:absolute;top:0;left:0;pointer-events:none}
+#cvs-bg  {z-index:1}
+#cvs-fx  {z-index:3}
+
+/* ── CONTENT LAYER ── */
+#content{
+  position:absolute;inset:0;
+  z-index:2;
+  display:flex;
+  align-items:center;
+  padding:0 52px 0 44px;
+}
+
+/* ── ICON BADGE ── */
+#badge-wrap{
+  position:relative;
+  width:148px;height:148px;
+  flex-shrink:0;
+}
+#badge{
+  position:absolute;
+  inset:16px;
+  border-radius:50%;
+  background:#0a0a0a;
+  display:flex;align-items:center;justify-content:center;
+  z-index:2;
+  border:2.5px solid var(--col);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.06),
+    0 0 28px 6px var(--col-a40),
+    0 0 55px 14px var(--col-a20),
+    inset 0 0 24px 4px var(--col-a15);
+  transition:border-color 0.1s, box-shadow 0.1s;
+}
+#badge svg, #badge img{
+  width:85px;height:85px;
+  display:block;
+  filter:drop-shadow(0 0 8px var(--col));
+  transition:filter 0.1s;
+}
+
+/* ── SEPARATOR ── */
+#sep{
+  width:3px;
+  height:100px;
+  margin:0 32px;
+  flex-shrink:0;
+  background:linear-gradient(180deg,transparent,var(--col),transparent);
+  box-shadow:0 0 10px 2px var(--col-a60),0 0 24px 4px var(--col-a30);
+  border-radius:2px;
+  position:relative;
+  transition:background 0.1s,box-shadow 0.1s;
+}
+/* dot on sep */
+#sep::before,#sep::after{
+  content:'';
+  position:absolute;
+  left:50%;transform:translateX(-50%);
+  border-radius:50%;
+}
+#sep::before{
+  width:8px;height:8px;
+  background:var(--col);
+  box-shadow:0 0 12px 4px var(--col);
+  top:-4px;
+}
+#sep::after{
+  width:8px;height:8px;
+  background:var(--col);
+  box-shadow:0 0 12px 4px var(--col);
+  bottom:-4px;
+}
+
+/* ── TEXT BLOCK ── */
+#text-block{
+  flex:1;
+  display:flex;flex-direction:column;
+  gap:2px;
+}
+
+#action-label{
+  font-family:'Barlow Condensed','Rajdhani',sans-serif;
+  font-size:13px;
+  font-weight:700;
+  letter-spacing:5px;
+  color:var(--col);
+  text-transform:uppercase;
+  text-shadow:0 0 12px var(--col-a80),0 0 24px var(--col-a40);
+  opacity:0;
+  transform:translateY(-8px);
+  transition:color 0.1s,text-shadow 0.1s;
+}
+
+#brand{
+  font-family:'Barlow Condensed','Rajdhani',sans-serif;
+  font-size:72px;
+  font-weight:900;
+  letter-spacing:2px;
+  line-height:1;
+  color:#ffffff;
+  text-transform:uppercase;
+  text-shadow:
+    0 0 20px rgba(255,255,255,0.4),
+    0 0 40px var(--col-a60),
+    0 0 80px var(--col-a30);
+  opacity:0;
+  transform:translateX(-16px);
+  clip-path:inset(0 100% 0 0);
+  transition:text-shadow 0.1s;
+  white-space:nowrap;
+}
+
+#platform-sub{
+  font-family:'Barlow Condensed','Rajdhani',sans-serif;
+  font-size:18px;
+  font-weight:600;
+  letter-spacing:3px;
+  color:rgba(255,255,255,0.45);
+  text-transform:uppercase;
+  opacity:0;
+  transform:translateY(8px);
+}
+
+/* ── GLOW BLOOM OVERLAY ── */
+#bloom{
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse 360px 240px at 110px 50%, var(--col-a25) 0%, transparent 68%);
+  opacity:0;
+  z-index:0;
+  pointer-events:none;
+  transition:background 0.1s;
+}
+
+/* ── CSS VARIABLES ── */
+:root{
+  --col:#00e5ff;
+  --col-a80:rgba(0,229,255,0.8);
+  --col-a60:rgba(0,229,255,0.6);
+  --col-a40:rgba(0,229,255,0.4);
+  --col-a30:rgba(0,229,255,0.3);
+  --col-a25:rgba(0,229,255,0.25);
+  --col-a20:rgba(0,229,255,0.2);
+  --col-a15:rgba(0,229,255,0.15);
+}
+</style>
+</head>
+<body>
+<div id="scene">
+  <div id="bloom"></div>
+  <canvas id="cvs-bg" width="700" height="280"></canvas>
+
+  <div id="content">
+    <div id="badge-wrap">
+      <div id="badge">
+        <div id="icon-svg"></div>
+      </div>
+    </div>
+    <div id="sep"></div>
+    <div id="text-block">
+      <div id="action-label">FOLLOW ME</div>
+      <div id="brand">TIKNOVA</div>
+      <div id="platform-sub">INSTAGRAM</div>
+    </div>
+  </div>
+
+  <canvas id="cvs-fx" width="700" height="280"></canvas>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+//  PLATFORM DATA
+// ═══════════════════════════════════════════════════════════
+var BRAND = 'TIKNOVA';
+var SWITCH_DURATION = 5500; // ms each platform shown
+
+var platforms = [
+  {
+    name:'Instagram', action:'FOLLOW ME',
+    color:'#ff2d95',
+    icon:'https://i.postimg.cc/hvmnGFjx/download-2-removebg-preview.png'
+  },
+  {
+    name:'TikTok', action:'WATCH MORE',
+    color:'#00e5ff',
+    icon:'https://i.postimg.cc/T2Lgm4vc/Tik-Tok-removebg-preview.png'
+  },
+  {
+    name:'Snapchat', action:'ADD ME',
+    color:'#ffee00',
+    icon:'https://i.postimg.cc/jdyf3n56/snap-chat-logo-removebg-preview.png'
+  },
+  {
+    name:'Discord', action:'JOIN SERVER',
+    color:'#7289da',
+    icon:'https://i.postimg.cc/RCkfTLMm/discord-logo-removebg-preview.png'
+  },
+  {
+    name:'PUBG', action:'ADD ME',
+    color:'#00aaff',
+    icon:'https://i.postimg.cc/QMdWM6qC/PUBG-Icon-removebg-preview.png'
+  },
+  {
+    name:'Kick', action:'WATCH LIVE',
+    color:'#53fc18',
+    icon:'https://i.postimg.cc/B68LTXk2/kick-removebg-preview.png'
+  },
+  {
+    name:'WhatsApp', action:'MESSAGE',
+    color:'#25d366',
+    icon:'https://i.postimg.cc/sx7MLbV2/Download-Whatsapp-logo-Whatsapp-social-media-icon-removebg-preview.png'
+  },
+
+  {
+    name:'Twitter', action:'FOLLOW ME',
+    color:'#1DA1F2',
+    icon:'https://i.postimg.cc/K8kzgWWc/download-4-removebg-preview.png'
+  },
+  {
+    name:'Facebook', action:'FOLLOW PAGE',
+    color:'#1877F2',
+    icon:'https://i.postimg.cc/50xbpKsJ/download-3-removebg-preview.png'
+  },
+  {
+    name:'Telegram', action:'JOIN CHANNEL',
+    color:'#229ED9',
+    icon:'https://i.postimg.cc/kXZM9cgc/katalog-telegramm-kanalov-botov-grupp-removebg-preview.png'
+  },
+  {
+    name:'YouTube', action:'SUBSCRIBE',
+    color:'#FF0000',
+    icon:'https://i.postimg.cc/Y93qHBvF/Altered-States-Wellness-Float-Therapy-Sauna-and-Cold-Plunge-for-Stress-Recovery-removebg-previ.png'
+  }
+];
+
+// ═══════════════════════════════════════════════════════════
+//  ICONS (inline SVG paths)
+// ═══════════════════════════════════════════════════════════
+function instagramSVG(c){
+  return '<rect x="20" y="20" width="60" height="60" rx="18" ry="18" stroke="'+c+'" stroke-width="6" fill="none"/>'
+    +'<circle cx="50" cy="50" r="15" stroke="'+c+'" stroke-width="6" fill="none"/>'
+    +'<circle cx="71" cy="29" r="4.5" fill="'+c+'"/>';
+}
+function tiktokSVG(c){
+  return '<path d="M62 20 C62 20 62 38 76 42 L76 54 C76 54 68 53 62 48 L62 68 C62 80 52 90 40 88 C28 86 22 74 26 63 C30 52 44 48 54 54 L54 67 C54 67 46 64 44 70 C42 76 48 82 54 79 C60 76 60 70 60 68 L60 20 Z" fill="'+c+'"/>';
+}
+function snapchatSVG(c){
+  return '<path d="M50 16 C36 16 28 26 28 38 C28 38 22 39 20 44 C18 49 24 50 24 50 C22 54 18 58 18 58 C18 58 28 62 50 62 C72 62 82 58 82 58 C82 58 78 54 76 50 C76 50 82 49 80 44 C78 39 72 38 72 38 C72 26 64 16 50 16 Z" stroke="'+c+'" stroke-width="5" fill="none"/>';
+}
+function discordSVG(c){
+  return '<path d="M36 32 C36 32 42 28 54 28 C66 28 72 32 72 32 C72 32 78 48 76 62 C76 62 70 68 62 70 L58 62 C58 62 64 60 66 56 C66 56 58 58 50 58 C42 58 34 56 34 56 C36 60 42 62 42 62 L38 70 C30 68 24 62 24 62 C22 48 28 32 36 32 Z" stroke="'+c+'" stroke-width="4" fill="none"/>'
+    +'<circle cx="40" cy="48" r="5" fill="'+c+'"/>'
+    +'<circle cx="60" cy="48" r="5" fill="'+c+'"/>';
+}
+function pubgSVG(c){
+  return '<rect x="22" y="22" width="56" height="56" rx="6" stroke="'+c+'" stroke-width="5" fill="none"/>'
+    +'<text x="50" y="57" font-family="Arial Black,sans-serif" font-size="16" font-weight="900" fill="'+c+'" text-anchor="middle">PUBG</text>';
+}
+function kickSVG(c){
+  return '<rect x="22" y="22" width="56" height="56" rx="8" fill="'+c+'"/>'
+    +'<text x="50" y="60" font-family="Arial Black,sans-serif" font-size="40" font-weight="900" fill="#000" text-anchor="middle">K</text>';
+}
+function whatsappSVG(c){
+  return '<circle cx="50" cy="50" r="32" stroke="'+c+'" stroke-width="5" fill="none"/>'
+    +'<path d="M32 68 L38 56 C34 50 34 42 40 36 C46 30 56 28 64 32 C72 36 76 46 72 55 C68 64 58 68 50 66 C46 65 42 63 39 60 Z" stroke="'+c+'" stroke-width="4.5" fill="none" stroke-linejoin="round"/>';
+}
+
+// ═══════════════════════════════════════════════════════════
+//  COLOR UTILS
+// ═══════════════════════════════════════════════════════════
+function hexToRGB(h){
+  var r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);
+  return [r,g,b];
+}
+function setVars(col){
+  var r=hexToRGB(col);
+  var s=document.documentElement.style;
+  s.setProperty('--col',col);
+  s.setProperty('--col-a80','rgba('+r[0]+','+r[1]+','+r[2]+',0.8)');
+  s.setProperty('--col-a60','rgba('+r[0]+','+r[1]+','+r[2]+',0.6)');
+  s.setProperty('--col-a40','rgba('+r[0]+','+r[1]+','+r[2]+',0.4)');
+  s.setProperty('--col-a30','rgba('+r[0]+','+r[1]+','+r[2]+',0.3)');
+  s.setProperty('--col-a25','rgba('+r[0]+','+r[1]+','+r[2]+',0.25)');
+  s.setProperty('--col-a20','rgba('+r[0]+','+r[1]+','+r[2]+',0.2)');
+  s.setProperty('--col-a15','rgba('+r[0]+','+r[1]+','+r[2]+',0.15)');
+  return r;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  CANVAS SYSTEMS
+// ═══════════════════════════════════════════════════════════
+var bgCvs = document.getElementById('cvs-bg');
+var bgCtx = bgCvs.getContext('2d');
+var fxCvs = document.getElementById('cvs-fx');
+var fxCtx = fxCvs.getContext('2d');
+var W=700,H=280;
+
+// radial burst rays
+var rays=[];
+var dots=[];   // ambient particles
+var flares=[];  // switch flash flares
+
+function initRays(col,rgb){
+  rays=[];
+  var N=40;
+  for(var i=0;i<N;i++){
+    var a=(i/N)*Math.PI*2;
+    rays.push({
+      angle:a,
+      len:rand(55,130),
+      speed:rand(0.004,0.012),
+      a:rand(0.25,0.75),
+      da:rand(-0.006,0.006),
+      w:rand(1,3),
+      col:col,rgb:rgb
+    });
+  }
+}
+
+function initDots(col,rgb){
+  // keep existing, just repaint color
+  if(dots.length===0){
+    for(var i=0;i<38;i++){
+      dots.push({
+        x:rand(260,680),y:rand(20,260),
+        vx:rand(-0.3,0.3),vy:rand(-0.25,0.25),
+        r:rand(0.8,2.2),
+        a:rand(0.1,0.5),da:rand(-0.008,0.008),
+        col:col,rgb:rgb
+      });
+    }
+  } else {
+    dots.forEach(function(d){d.col=col;d.rgb=rgb;});
+  }
+}
+
+function spawnFlare(col,rgb){
+  for(var i=0;i<22;i++){
+    var a=rand(0,Math.PI*2);
+    var spd=rand(2,7);
+    flares.push({
+      x:116,y:140,
+      vx:Math.cos(a)*spd,vy:Math.sin(a)*spd,
+      r:rand(1.5,3.5),
+      a:rand(0.7,1),
+      life:rand(30,70),age:0,
+      col:col,rgb:rgb,
+      drag:rand(0.92,0.96)
+    });
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  RENDER LOOPS
+// ═══════════════════════════════════════════════════════════
+var currentRGB=[0,229,255];
+var currentCol='#00e5ff';
+var burstPhase=0; // 0..1 for entrance bloom
+
+function drawBG(){
+  bgCtx.clearRect(0,0,W,H);
+
+  // radial rays from badge center (116,140)
+  var cx=116,cy=140;
+  rays.forEach(function(r){
+    r.angle+=r.speed;
+    r.a+=r.da;
+    if(r.a<0.12||r.a>0.78) r.da*=-1;
+    var ex=cx+Math.cos(r.angle)*r.len;
+    var ey=cy+Math.sin(r.angle)*r.len;
+    var g=bgCtx.createLinearGradient(cx,cy,ex,ey);
+    g.addColorStop(0,'rgba('+r.rgb[0]+','+r.rgb[1]+','+r.rgb[2]+','+r.a+')');
+    g.addColorStop(1,'transparent');
+    bgCtx.save();
+    bgCtx.strokeStyle=g;
+    bgCtx.lineWidth=r.w;
+    bgCtx.shadowColor=r.col;
+    bgCtx.shadowBlur=6;
+    bgCtx.beginPath();
+    bgCtx.moveTo(cx,cy);
+    bgCtx.lineTo(ex,ey);
+    bgCtx.stroke();
+    bgCtx.restore();
+  });
+
+  // entrance burst bloom
+  if(burstPhase>0){
+    var bAlpha=burstPhase*0.55;
+    var bR=burstPhase*220;
+    var bg=bgCtx.createRadialGradient(cx,cy,0,cx,cy,bR);
+    bg.addColorStop(0,'rgba('+currentRGB[0]+','+currentRGB[1]+','+currentRGB[2]+','+bAlpha+')');
+    bg.addColorStop(0.35,'rgba('+currentRGB[0]+','+currentRGB[1]+','+currentRGB[2]+','+(bAlpha*0.35)+')');
+    bg.addColorStop(1,'transparent');
+    bgCtx.fillStyle=bg;
+    bgCtx.beginPath();
+    bgCtx.arc(cx,cy,Math.max(bR,1),0,Math.PI*2);
+    bgCtx.fill();
+    burstPhase*=0.88;
+    if(burstPhase<0.01) burstPhase=0;
+  }
+
+  // halo behind badge
+  var hg=bgCtx.createRadialGradient(cx,cy,30,cx,cy,110);
+  hg.addColorStop(0,'rgba('+currentRGB[0]+','+currentRGB[1]+','+currentRGB[2]+',0.18)');
+  hg.addColorStop(0.5,'rgba('+currentRGB[0]+','+currentRGB[1]+','+currentRGB[2]+',0.07)');
+  hg.addColorStop(1,'transparent');
+  bgCtx.fillStyle=hg;
+  bgCtx.beginPath();
+  bgCtx.arc(cx,cy,110,0,Math.PI*2);
+  bgCtx.fill();
+}
+
+function drawFX(){
+  fxCtx.clearRect(0,0,W,H);
+
+  // ambient particles
+  dots.forEach(function(d){
+    d.x+=d.vx; d.y+=d.vy;
+    d.a+=d.da;
+    if(d.x<240||d.x>690) d.vx*=-1;
+    if(d.y<10||d.y>270) d.vy*=-1;
+    if(d.a<0.05||d.a>0.55) d.da*=-1;
+    var pg=fxCtx.createRadialGradient(d.x,d.y,0,d.x,d.y,d.r*3);
+    pg.addColorStop(0,'rgba('+d.rgb[0]+','+d.rgb[1]+','+d.rgb[2]+','+d.a+')');
+    pg.addColorStop(1,'transparent');
+    fxCtx.fillStyle=pg;
+    fxCtx.beginPath();
+    fxCtx.arc(d.x,d.y,d.r*3,0,Math.PI*2);
+    fxCtx.fill();
+    // core
+    fxCtx.save();
+    fxCtx.globalAlpha=d.a*1.4;
+    fxCtx.fillStyle='#fff';
+    fxCtx.beginPath();
+    fxCtx.arc(d.x,d.y,d.r*0.55,0,Math.PI*2);
+    fxCtx.fill();
+    fxCtx.restore();
+  });
+
+  // switch flares
+  for(var fi=flares.length-1;fi>=0;fi--){
+    var f=flares[fi];
+    f.age++;
+    f.x+=f.vx; f.y+=f.vy;
+    f.vx*=f.drag; f.vy*=f.drag;
+    f.vy+=0.06;
+    f.a-=1/f.life;
+    if(f.a<=0||f.age>=f.life){flares.splice(fi,1);continue;}
+    fxCtx.save();
+    fxCtx.globalAlpha=f.a;
+    fxCtx.shadowColor=f.col;
+    fxCtx.shadowBlur=f.r*5;
+    fxCtx.fillStyle=f.col;
+    fxCtx.beginPath();
+    fxCtx.arc(f.x,f.y,f.r,0,Math.PI*2);
+    fxCtx.fill();
+    fxCtx.restore();
+  }
+}
+
+function loop(){
+  drawBG();
+  drawFX();
+  requestAnimationFrame(loop);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  DOM REFS
+// ═══════════════════════════════════════════════════════════
+var badgeEl      = document.getElementById('badge');
+var iconSVG      = document.getElementById('icon-svg');
+var actionEl     = document.getElementById('action-label');
+var brandEl      = document.getElementById('brand');
+var subEl        = document.getElementById('platform-sub');
+var bloomEl      = document.getElementById('bloom');
+var sepEl        = document.getElementById('sep');
+
+// ═══════════════════════════════════════════════════════════
+//  PLATFORM SWITCH ENGINE
+// ═══════════════════════════════════════════════════════════
+var currentIdx = -1;
+var isAnimating = false;
+
+function applyPlatform(p,instant){
+  var rgb = hexToRGB(p.color);
+  currentRGB = rgb;
+  currentCol = p.color;
+  setVars(p.color);
+  initRays(p.color,rgb);
+  initDots(p.color,rgb);
+
+  // update icon
+  iconSVG.innerHTML = '<img src="' + p.icon + '" class="platform-icon">';
+
+  // update text
+  actionEl.textContent  = p.action;
+  subEl.textContent     = p.name.toUpperCase();
+  brandEl.textContent   = BRAND;
+
+  // bloom pulse
+  bloomEl.style.background = 'radial-gradient(ellipse 360px 240px at 110px 50%, rgba('+rgb[0]+','+rgb[1]+','+rgb[2]+',0.28) 0%, transparent 68%)';
+
+  // burst
+  burstPhase = 1;
+  spawnFlare(p.color,rgb);
+}
+
+function animateOut(done){
+  // fade + slide out
+  var els=[actionEl,brandEl,subEl,badgeEl,sepEl];
+  var dur=320;
+  var start=null;
+  function step(ts){
+    if(!start) start=ts;
+    var t=Math.min((ts-start)/dur,1);
+    var ease=t<0.5?2*t*t:(4-2*t)*t-1;
+    actionEl.style.opacity = 1-t;
+    actionEl.style.transform='translateY('+((-8)*t)+'px)';
+    brandEl.style.opacity = 1-t;
+    brandEl.style.clipPath='inset(0 '+(t*60)+'% 0 0)';
+    subEl.style.opacity = 1-t;
+    subEl.style.transform='translateY('+(8*t)+'px)';
+    badgeEl.style.opacity = 1-(t*0.7);
+    badgeEl.style.transform='scale('+(1-t*0.08)+')';
+    bloomEl.style.opacity = 1-t;
+    sepEl.style.opacity = 1-t;
+    if(t<1) requestAnimationFrame(step);
+    else done();
+  }
+  requestAnimationFrame(step);
+}
+
+function animateIn(p){
+  var rgb=hexToRGB(p.color);
+  var dur=560;
+  var start=null;
+
+  // reset positions
+  actionEl.style.transform='translateY(-14px)';
+  brandEl.style.clipPath='inset(0 100% 0 0)';
+  brandEl.style.transform='translateX(-20px)';
+  subEl.style.transform='translateY(12px)';
+  badgeEl.style.transform='scale(0.88)';
+
+  function step(ts){
+    if(!start) start=ts;
+    var raw=(ts-start)/dur;
+    var t=Math.min(raw,1);
+    // cubic ease-out
+    var e=1-Math.pow(1-t,3);
+
+    actionEl.style.opacity = e;
+    actionEl.style.transform='translateY('+((-14)*(1-e))+'px)';
+
+    // brand: wipe + slide
+    var brandT=Math.min(Math.max((t-0.1)/0.7,0),1);
+    var bE=1-Math.pow(1-brandT,3);
+    brandEl.style.opacity = bE;
+    brandEl.style.clipPath='inset(0 '+Math.round((1-bE)*100)+'% 0 0)';
+    brandEl.style.transform='translateX('+((-20)*(1-bE))+'px)';
+
+    subEl.style.opacity = Math.min(t*2.5,1);
+    subEl.style.transform='translateY('+(12*(1-e))+'px)';
+
+    badgeEl.style.opacity = e;
+    badgeEl.style.transform='scale('+(0.88+(0.12*e))+')';
+
+    bloomEl.style.opacity = e;
+    sepEl.style.opacity = e;
+
+    if(t<1) requestAnimationFrame(step);
+    else isAnimating=false;
+  }
+  requestAnimationFrame(step);
+}
+
+function switchTo(idx){
+  if(isAnimating) return;
+  isAnimating=true;
+  var p=platforms[idx];
+
+  if(currentIdx===-1){
+    // first load — just animate in
+    applyPlatform(p,true);
+    animateIn(p);
+    currentIdx=idx;
+    scheduleNext();
+    return;
+  }
+
+  animateOut(function(){
+    applyPlatform(p,false);
+    animateIn(p);
+    currentIdx=idx;
+    scheduleNext();
+  });
+}
+
+var _switchTimer=null;
+function scheduleNext(){
+  clearTimeout(_switchTimer);
+  _switchTimer=setTimeout(function(){
+    var next=(currentIdx+1)%platforms.length;
+    switchTo(next);
+  }, SWITCH_DURATION);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════════════════
+function rand(a,b){return a+Math.random()*(b-a);}
+
+// ═══════════════════════════════════════════════════════════
+//  BOOT
+// ═══════════════════════════════════════════════════════════
+loop();
+setTimeout(function(){ switchTo(0); }, 80);
+</script>
+</body>
+</html>

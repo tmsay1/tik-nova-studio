@@ -1,0 +1,249 @@
+"use client"
+
+import { LivePreviewCard } from "@/components/live-preview-card"
+import { Briefcase } from "lucide-react"
+
+const projects = [
+  {
+    id: 1,
+    title: "لوحة تحكم احترافية",
+    description: "واجهة إدارية متكاملة لعرض البيانات والإحصاءات بأسلوب واضح وحديث يساعد على متابعة الأداء واتخاذ القرار بسرعة.",
+    category: "Dashboard",
+    previewCode: `
+      <style>
+        .dashboard { width: 340px; padding: 20px; background: linear-gradient(135deg, rgba(180,50,50,0.05), rgba(0,0,0,0.9)); border: 1px solid rgba(180,50,50,0.2); border-radius: 12px; }
+        .dash-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .dash-title { color: #fff; font-size: 14px; font-weight: 600; }
+        .dash-badge { background: rgba(220,38,38,0.2); color: #dc2626; padding: 4px 10px; border-radius: 12px; font-size: 10px; font-weight: 600; }
+        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
+        .stat { background: rgba(255,255,255,0.03); padding: 12px; border-radius: 8px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
+        .stat-value { color: #dc2626; font-size: 18px; font-weight: 700; }
+        .stat-label { color: #666; font-size: 9px; text-transform: uppercase; margin-top: 4px; }
+        .chart { height: 60px; display: flex; align-items: flex-end; gap: 4px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px; }
+        .bar { flex: 1; background: linear-gradient(180deg, #dc2626, #991b1b); border-radius: 3px 3px 0 0; animation: grow 1s ease-out backwards; }
+        @keyframes grow { from { height: 0; } }
+      </style>
+      <div class="dashboard">
+        <div class="dash-header"><div class="dash-title">Sales Overview</div><div class="dash-badge">Live</div></div>
+        <div class="stats">
+          <div class="stat"><div class="stat-value">$24K</div><div class="stat-label">Revenue</div></div>
+          <div class="stat"><div class="stat-value">1.2K</div><div class="stat-label">Orders</div></div>
+          <div class="stat"><div class="stat-value">89%</div><div class="stat-label">Growth</div></div>
+        </div>
+        <div class="chart">
+          <div class="bar" style="height: 40%; animation-delay: 0.1s"></div>
+          <div class="bar" style="height: 60%; animation-delay: 0.2s"></div>
+          <div class="bar" style="height: 45%; animation-delay: 0.3s"></div>
+          <div class="bar" style="height: 80%; animation-delay: 0.4s"></div>
+          <div class="bar" style="height: 65%; animation-delay: 0.5s"></div>
+          <div class="bar" style="height: 90%; animation-delay: 0.6s"></div>
+          <div class="bar" style="height: 70%; animation-delay: 0.7s"></div>
+        </div>
+      </div>
+    `,
+  },
+  {
+    id: 2,
+    title: "موقع تعريفي فاخر",
+    description: "تصميم أنيق يبرز الهوية والخدمات والأعمال بطريقة منظمة تمنح الزائر انطباعاً قوياً من اللحظة الأولى.",
+    category: "Website",
+    previewCode: `
+      <style>
+        .portfolio { width: 320px; padding: 25px; background: linear-gradient(180deg, rgba(180,50,50,0.08), rgba(0,0,0,0.95)); border: 1px solid rgba(180,50,50,0.25); border-radius: 14px; }
+        .port-nav { display: flex; gap: 20px; margin-bottom: 25px; }
+        .nav-item { color: #666; font-size: 11px; font-weight: 500; cursor: pointer; transition: color 0.3s; }
+        .nav-item.active { color: #dc2626; }
+        .hero-text { margin-bottom: 20px; }
+        .hero-title { color: #fff; font-size: 22px; font-weight: 700; line-height: 1.2; margin-bottom: 8px; }
+        .hero-title span { color: #dc2626; }
+        .hero-sub { color: #888; font-size: 12px; }
+        .projects { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .project { height: 50px; background: linear-gradient(135deg, rgba(220,38,38,0.15), rgba(0,0,0,0.5)); border: 1px solid rgba(220,38,38,0.2); border-radius: 8px; animation: fadeIn 0.5s ease-out backwards; }
+        .project:nth-child(1) { animation-delay: 0.1s; }
+        .project:nth-child(2) { animation-delay: 0.2s; }
+        .project:nth-child(3) { animation-delay: 0.3s; }
+        .project:nth-child(4) { animation-delay: 0.4s; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } }
+      </style>
+      <div class="portfolio">
+        <div class="port-nav"><div class="nav-item active">Home</div><div class="nav-item">Work</div><div class="nav-item">About</div><div class="nav-item">Contact</div></div>
+        <div class="hero-text"><div class="hero-title">Creative <span>Developer</span></div><div class="hero-sub">Building digital experiences</div></div>
+        <div class="projects"><div class="project"></div><div class="project"></div><div class="project"></div><div class="project"></div></div>
+      </div>
+    `,
+  },
+  {
+    id: 3,
+    title: "واجهة تطبيق جوال",
+    description: "Complete mobile app interface design with 50+ screens, comprehensive design system, and Figma components.",
+    category: "App Design",
+    previewCode: `
+      <style>
+        .phone { width: 180px; height: 320px; background: #0a0a0a; border: 3px solid #222; border-radius: 24px; padding: 10px; position: relative; overflow: hidden; }
+        .notch { width: 80px; height: 20px; background: #000; border-radius: 0 0 12px 12px; position: absolute; top: 0; left: 50%; transform: translateX(-50%); }
+        .screen { height: 100%; background: linear-gradient(180deg, rgba(220,38,38,0.1), #0a0a0a); border-radius: 18px; padding: 30px 15px 15px; }
+        .app-header { color: #fff; font-size: 16px; font-weight: 700; margin-bottom: 15px; }
+        .card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 12px; margin-bottom: 10px; animation: slideUp 0.5s ease-out backwards; }
+        .card:nth-child(2) { animation-delay: 0.1s; }
+        .card:nth-child(3) { animation-delay: 0.2s; }
+        .card-title { color: #fff; font-size: 11px; font-weight: 600; margin-bottom: 4px; }
+        .card-sub { color: #666; font-size: 9px; }
+        .tab-bar { position: absolute; bottom: 15px; left: 15px; right: 15px; height: 40px; background: rgba(220,38,38,0.15); border-radius: 20px; display: flex; align-items: center; justify-content: space-around; }
+        .tab { width: 8px; height: 8px; background: #666; border-radius: 50%; }
+        .tab.active { background: #dc2626; box-shadow: 0 0 10px rgba(220,38,38,0.6); }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } }
+      </style>
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="app-header">Dashboard</div>
+          <div class="card"><div class="card-title">Analytics</div><div class="card-sub">View your stats</div></div>
+          <div class="card"><div class="card-title">Messages</div><div class="card-sub">12 unread</div></div>
+          <div class="card"><div class="card-title">Settings</div><div class="card-sub">Customize app</div></div>
+        </div>
+        <div class="tab-bar"><div class="tab active"></div><div class="tab"></div><div class="tab"></div><div class="tab"></div></div>
+      </div>
+    `,
+  },
+  {
+    id: 4,
+    title: "صفحة هبوط تسويقية",
+    description: "صفحة مصممة لعرض المنتج أو الخدمة بأسلوب جذاب يركز على الإقناع ورفع نسبة التفاعل والتحويل.",
+    category: "Website",
+    previewCode: `
+      <style>
+        .landing { width: 340px; padding: 25px; background: linear-gradient(180deg, rgba(180,50,50,0.1), rgba(0,0,0,0.95)); border: 1px solid rgba(180,50,50,0.2); border-radius: 14px; }
+        .land-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .logo { color: #dc2626; font-weight: 800; font-size: 14px; }
+        .cta-btn { background: #dc2626; color: white; padding: 6px 14px; border-radius: 6px; font-size: 10px; font-weight: 600; }
+        .hero { text-align: center; margin-bottom: 20px; }
+        .hero h1 { color: #fff; font-size: 20px; font-weight: 700; margin-bottom: 8px; line-height: 1.3; }
+        .hero p { color: #888; font-size: 11px; }
+        .features { display: flex; gap: 10px; justify-content: center; }
+        .feature { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 12px; border-radius: 8px; text-align: center; flex: 1; animation: popIn 0.4s ease-out backwards; }
+        .feature:nth-child(1) { animation-delay: 0.1s; }
+        .feature:nth-child(2) { animation-delay: 0.2s; }
+        .feature:nth-child(3) { animation-delay: 0.3s; }
+        .feat-icon { font-size: 18px; margin-bottom: 6px; }
+        .feat-text { color: #ccc; font-size: 9px; }
+        @keyframes popIn { from { opacity: 0; transform: scale(0.8); } }
+      </style>
+      <div class="landing">
+        <div class="land-nav"><div class="logo">SaaSify</div><div class="cta-btn">Get Started</div></div>
+        <div class="hero"><h1>Build Better Products Faster</h1><p>The all-in-one platform for modern teams</p></div>
+        <div class="features">
+          <div class="feature"><div class="feat-icon">⚡</div><div class="feat-text">Fast</div></div>
+          <div class="feature"><div class="feat-icon">🔒</div><div class="feat-text">Secure</div></div>
+          <div class="feature"><div class="feat-icon">📊</div><div class="feat-text">Analytics</div></div>
+        </div>
+      </div>
+    `,
+  },
+  {
+    id: 5,
+    title: "منصة ألعاب احترافية",
+    description: "منصة ألعاب متكاملة تضم ملفات المستخدمين، التصنيفات، المباريات، ونظام بطولات احترافي.",
+    category: "Web App",
+    previewCode: `
+      <style>
+        .gaming { width: 340px; padding: 20px; background: linear-gradient(135deg, rgba(180,50,50,0.08), rgba(0,0,0,0.95)); border: 1px solid rgba(180,50,50,0.3); border-radius: 14px; }
+        .game-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .game-logo { color: #dc2626; font-weight: 800; font-size: 16px; text-shadow: 0 0 15px rgba(220,38,38,0.5); }
+        .user-avatar { width: 30px; height: 30px; background: linear-gradient(135deg, #dc2626, #991b1b); border-radius: 50%; }
+        .match-card { background: rgba(220,38,38,0.1); border: 1px solid rgba(220,38,38,0.3); padding: 15px; border-radius: 10px; margin-bottom: 15px; animation: pulse 2s infinite; }
+        .match-title { color: #dc2626; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .vs-row { display: flex; justify-content: space-between; align-items: center; }
+        .team { text-align: center; }
+        .team-name { color: #fff; font-size: 12px; font-weight: 600; }
+        .team-score { color: #dc2626; font-size: 20px; font-weight: 800; }
+        .vs { color: #666; font-size: 12px; font-weight: 700; }
+        .leaderboard { display: flex; gap: 8px; }
+        .leader { flex: 1; background: rgba(0,0,0,0.4); padding: 10px; border-radius: 8px; text-align: center; }
+        .leader-rank { color: #dc2626; font-size: 14px; font-weight: 700; }
+        .leader-name { color: #888; font-size: 9px; margin-top: 4px; }
+        @keyframes pulse { 0%, 100% { border-color: rgba(220,38,38,0.3); } 50% { border-color: rgba(220,38,38,0.6); } }
+      </style>
+      <div class="gaming">
+        <div class="game-header"><div class="game-logo">ARENA</div><div class="user-avatar"></div></div>
+        <div class="match-card">
+          <div class="match-title">Live Match</div>
+          <div class="vs-row"><div class="team"><div class="team-name">Team Alpha</div><div class="team-score">3</div></div><div class="vs">VS</div><div class="team"><div class="team-name">Team Beta</div><div class="team-score">2</div></div></div>
+        </div>
+        <div class="leaderboard">
+          <div class="leader"><div class="leader-rank">#1</div><div class="leader-name">ProX</div></div>
+          <div class="leader"><div class="leader-rank">#2</div><div class="leader-name">NightKing</div></div>
+          <div class="leader"><div class="leader-rank">#3</div><div class="leader-name">Ace</div></div>
+        </div>
+      </div>
+    `,
+  },
+  {
+    id: 6,
+    title: "لوحة تحليلات متقدمة",
+    description: "لوحة تحليلات مباشرة تعرض الرسوم البيانية والإحصاءات بشكل تفاعلي وقابل للتخصيص.",
+    category: "Dashboard",
+    previewCode: `
+      <style>
+        .analytics { width: 340px; padding: 20px; background: linear-gradient(135deg, rgba(0,0,0,0.95), rgba(180,50,50,0.05)); border: 1px solid rgba(180,50,50,0.2); border-radius: 14px; }
+        .ana-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .ana-title { color: #fff; font-size: 14px; font-weight: 600; }
+        .live-dot { display: flex; align-items: center; gap: 6px; color: #22c55e; font-size: 10px; }
+        .dot { width: 6px; height: 6px; background: #22c55e; border-radius: 50%; animation: blink 1s infinite; }
+        .metrics { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px; }
+        .metric { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); padding: 14px; border-radius: 10px; }
+        .metric-val { color: #dc2626; font-size: 20px; font-weight: 700; }
+        .metric-label { color: #666; font-size: 10px; margin-top: 4px; }
+        .metric-change { font-size: 10px; color: #22c55e; margin-top: 4px; }
+        .line-chart { height: 50px; display: flex; align-items: flex-end; gap: 2px; }
+        .point { width: 4px; background: #dc2626; border-radius: 2px; animation: grow 1s ease-out backwards; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        @keyframes grow { from { height: 0; } }
+      </style>
+      <div class="analytics">
+        <div class="ana-header"><div class="ana-title">Analytics Overview</div><div class="live-dot"><div class="dot"></div>Live</div></div>
+        <div class="metrics">
+          <div class="metric"><div class="metric-val">45.2K</div><div class="metric-label">Visitors</div><div class="metric-change">+12.5%</div></div>
+          <div class="metric"><div class="metric-val">3.8%</div><div class="metric-label">Conversion</div><div class="metric-change">+2.1%</div></div>
+        </div>
+        <div class="line-chart">
+          ${Array.from({ length: 20 }, (_, i) => `<div class="point" style="height: ${20 + Math.random() * 30}px; animation-delay: ${i * 0.05}s"></div>`).join('')}
+        </div>
+      </div>
+    `,
+  },
+]
+
+export function ClientProjects() {
+  return (
+    <section className="py-12">
+      {/* Section Header */}
+      <div className="mb-10">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20">
+            <Briefcase className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold text-foreground">أعمال مختارة</h2>
+            <p className="text-sm text-muted-foreground">
+              مجموعة من الواجهات والمشاريع الرقمية المصممة بعناية لتجمع بين الجمال والوضوح وتجربة الاستخدام الحديثة.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Projects Grid - 2 columns for large cards */}
+      <div className="grid gap-8 lg:grid-cols-2">
+        {projects.map((project) => (
+          <LivePreviewCard
+            key={project.id}
+            title={project.title}
+            description={project.description}
+            previewCode={project.previewCode}
+            category={project.category}
+            onViewDetails={() => console.log("View details:", project.id)}
+          />
+        ))}
+      </div>
+    </section>
+  )
+}

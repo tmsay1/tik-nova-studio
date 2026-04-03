@@ -1,0 +1,279 @@
+"use client"
+
+import { useCallback, useEffect, useRef, useState } from "react"
+import { Star, Play } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { LikeButton } from "@/components/like-button"
+import { cn } from "@/lib/utils"
+
+const DISCORD_LINK = "https://discord.gg/gTEzyDqaGj"
+
+interface LivePreviewCardProps {
+  title: string
+  description: string
+  previewCode: string
+  rating: number
+  category: string
+  onViewDetails?: () => void
+  priority?: boolean
+}
+
+export function LivePreviewCard({
+  title,
+  description,
+  previewCode,
+  rating,
+  category,
+  onViewDetails,
+  priority = false,
+}: LivePreviewCardProps) {
+  const handleDiscordRedirect = () => {
+    window.open(DISCORD_LINK, "_blank")
+  }
+
+  // Create a blob URL for the iframe content
+  const iframeContent = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <style>
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body { 
+            background: #0a0a0a; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 100vh;
+            overflow: hidden;
+            font-family: system-ui, -apple-system, sans-serif;
+          }
+        </style>
+      </head>
+      <body>
+        ${previewCode}
+      </body>
+    </html>
+  
+
+`
+
+  const [detailsOpen, setDetailsOpen] = useState(false)
+  const [iframeLoaded, setIframeLoaded] = useState(false)
+  const [testNonce, setTestNonce] = useState(0)
+  const iframeRef = useRef<HTMLIFrameElement | null>(null)
+  const pendingTestRef = useRef(false)
+
+  const handleOpenPreview = () => {
+    const newWindow = window.open("", "_blank", "noopener,noreferrer")
+    if (!newWindow) return
+
+    newWindow.document.write(iframeContent)
+    newWindow.document.close()
+    newWindow.document.title = title + " Preview"
+  }
+
+  const handleAddToCart = () => {
+    window.open(DISCORD_LINK, "_blank")
+  }
+
+  const handleDetailsClick = () => {
+    if (onViewDetails) {
+      try {
+        onViewDetails()
+      } catch (e) {}
+    }
+    setDetailsOpen(true)
+  }
+
+  const handleTestPreview = () => {
+    pendingTestRef.current = true
+    setIframeLoaded(false)
+    setTestNonce((n) => n + 1)
+  }
+
+
+
+  const sendTestData = useCallback(() => {
+    const frameWin = iframeRef.current?.contentWindow
+    if (!frameWin) return
+
+    const sample = {
+      user: "Ahmed",
+      username: "Ahmed",
+      name: "Ahmed",
+      avatar: "https://i.postimg.cc/mrJvXWfR/Whats-App-Image-2026-03-26-at-12-43-46-AM.jpg",
+      count: 12,
+      likes: 1250,
+      goal: 5000,
+      current: 1250,
+      target: 5000,
+      percent: 25,
+      value: 1250,
+      coins: 99,
+      score: 125700,
+      text: "شكراً على المتابعة",
+      message: "شكراً على المتابعة",
+      rank1: { name: "Ahmed", score: 125700, avatar: "https://i.postimg.cc/mrJvXWfR/Whats-App-Image-2026-03-26-at-12-43-46-AM.jpg" },
+      rank2: { name: "Salih", score: 99000, avatar: "https://i.postimg.cc/mrJvXWfR/Whats-App-Image-2026-03-26-at-12-43-46-AM.jpg" },
+      rank3: { name: "User", score: 76200, avatar: "https://i.postimg.cc/mrJvXWfR/Whats-App-Image-2026-03-26-at-12-43-46-AM.jpg" },
+    }
+
+    const maybeCall = (name: string, payload: any) => {
+      try {
+        const fn = (frameWin as any)[name]
+        if (typeof fn === "function") {
+          fn(payload)
+          return true
+        }
+      } catch {}
+      return false
+    }
+
+    maybeCall("setTopGift", sample) ||
+    maybeCall("setGiftGoal", sample) ||
+    maybeCall("setLikeGoal", sample) ||
+    maybeCall("setFollowGoal", sample) ||
+    maybeCall("setFollowOverlay", sample) ||
+    maybeCall("setLiveLike", sample) ||
+    maybeCall("setLikeOverlay", sample) ||
+    maybeCall("setTopRanking", sample) ||
+    maybeCall("setTop5Ranking", sample) ||
+    maybeCall("setTop10Supporters", sample) ||
+    maybeCall("setLeaderboard", sample) ||
+    maybeCall("setPodium", sample) ||
+    maybeCall("setPlatformsRotator", sample)
+
+    try {
+      frameWin.dispatchEvent(new CustomEvent("preview:test", { detail: sample }))
+    } catch {}
+
+    try {
+      frameWin.postMessage({ type: "preview:test", payload: sample }, "*")
+    } catch {}
+  }, [])
+
+  return (
+    <div className="group relative overflow-hidden rounded-3xl border border-primary/20 bg-[#120202] backdrop-blur-sm transition-all duration-500 shadow-[0_0_0_1px_rgba(255,0,0,0.05),0_10px_30px_rgba(0,0,0,0.28)] hover:scale-[1.015] hover:border-primary/40 hover:shadow-[0_0_0_1px_rgba(255,0,0,0.12),0_14px_40px_rgba(180,50,50,0.18)]">
+      {/* Glow effect overlay */}
+      <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100">
+        <div className="absolute inset-0 bg-gradient-to-t from-primary/15 via-transparent to-transparent" />
+      </div>
+
+      {/* Live Preview Area - Large iframe container */}
+      <div className="relative aspect-[16/9] min-h-[300px] overflow-hidden bg-gradient-to-br from-[#140303] via-[#0b0202] to-[#111] lg:min-h-[350px]">
+        {!iframeLoaded && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-gradient-to-br from-[#120202] via-[#0a0101] to-black">
+            <div className="absolute inset-0 opacity-70">
+              <div className="h-full w-full animate-pulse bg-[radial-gradient(circle_at_center,rgba(255,0,0,0.10),transparent_38%),linear-gradient(90deg,rgba(255,255,255,0.02),rgba(255,255,255,0.00),rgba(255,255,255,0.02))]" />
+            </div>
+            <div className="relative z-10 text-center">
+              <div className="mx-auto mb-3 h-12 w-12 rounded-2xl border border-primary/40 bg-primary/10 shadow-[0_0_25px_rgba(255,0,0,0.18)]" />
+              <div className="text-sm font-semibold text-white/90">{title}</div>
+              <div className="mt-1 text-xs text-white/45">Loading preview...</div>
+            </div>
+          </div>
+        )}
+
+        <iframe
+          key={testNonce}
+          ref={iframeRef}
+          srcDoc={iframeContent}
+          className={`h-full w-full border-0 translate-x-4 transition-opacity duration-300 ${iframeLoaded ? "opacity-100" : "opacity-0"}`}
+          sandbox="allow-scripts"
+          loading="eager"
+          title={`Live preview of ${title}`}
+          onLoad={() => {
+            setIframeLoaded(true)
+            if (pendingTestRef.current) {
+              pendingTestRef.current = false
+              requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                  sendTestData()
+                })
+              })
+            }
+          }}
+        />
+        </div>
+
+      {/* Content Area */}
+      <div className="p-5">
+        <div className="mb-3 flex items-start justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            {/* Title */}
+            <h3 className="mb-2 text-xl font-bold text-foreground transition-colors group-hover:text-primary">
+              {title}
+            </h3>
+
+            {/* Description */}
+            <p className="line-clamp-2 text-sm text-muted-foreground">
+              {description}
+            </p>
+          </div>
+
+          <div className="flex shrink-0 items-center gap-2 self-start">
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={handleTestPreview}
+              className="h-9 rounded-lg border-primary/50 px-3 text-xs hover:border-primary hover:bg-primary/10"
+            >
+              <Play className="mr-1 h-3.5 w-3.5" />
+              Test
+            </Button>
+
+            <div className="scale-[0.88] origin-top-right">
+              <LikeButton itemId={title} />
+            </div>
+          </div>
+        </div>
+
+        {/* Rating Stars */}
+        <div className="mb-2 flex items-center gap-1">
+          {[...Array(5)].map((_, i) => (
+            <Star
+              key={i}
+              className={cn(
+                "h-4 w-4",
+                i < rating
+                  ? "fill-primary text-primary"
+                  : "fill-muted text-muted"
+              )}
+            />
+          ))}
+          <span className="ml-2 text-xs text-muted-foreground">
+            ({rating}.0)
+          </span>
+        </div>
+      </div>
+      {detailsOpen && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 p-4">
+          <div className="w-full max-w-2xl rounded-2xl border border-primary/40 bg-card p-5 shadow-2xl">
+            <div className="mb-4 flex items-center justify-between gap-4">
+              <div>
+                <h3 className="text-xl font-bold text-foreground">{title}</h3>
+                <p className="text-sm text-muted-foreground">
+                  Live product details and quick preview
+                </p>
+              </div>
+            </div>
+
+            <div className="overflow-hidden rounded-xl border border-border/50">
+              <iframe
+                srcDoc={iframeContent}
+                className="h-[70vh] w-full border-0 bg-black"
+                title={`${title} details preview`}
+                sandbox="allow-scripts"
+              />
+            </div>
+
+            <div className="mt-4 flex flex-wrap gap-3">
+            </div>
+          </div>
+        </div>
+      )}
+
+    </div>
+  )
+}

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>Podium Overlay 4K Ultra HD</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+
+*{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
+
+html,body{
+  width:600px;height:390px;
+  background:transparent;
+  font-family:'Tajawal',sans-serif;
+  overflow:hidden;
+}
+
+.wrap{
+  position:relative;
+  width:600px;
+  height:340px;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  gap:15px;
+  padding-bottom:5px;
+}
+
+.particles{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
+.p{position:absolute;border-radius:50%;animation:pfloat var(--d) ease-in-out infinite var(--dl);filter:blur(1px);}
+@keyframes pfloat{0%,100%{transform:translateY(0) scale(1);opacity:0;}50%{opacity:.8;transform:translateY(-80px) scale(1.3);}100%{opacity:0;}}
+
+
+.floor-glow{
+  position:absolute;bottom:0;left:50%;transform:translateX(-50%);
+  width:580px;height:8px;border-radius:4px;
+  background:linear-gradient(90deg,transparent,#cc0000,#ff3333,#cc0000,transparent);
+  box-shadow:0 0 40px 10px rgba(255,0,0,0.6);
+  animation:floorPulse 2s ease-in-out infinite;
+}
+@keyframes floorPulse{0%,100%{opacity:.6;}50%{opacity:1;}}
+
+
+.slot{
+  display:flex;flex-direction:column;align-items:center;
+  opacity:0;animation:slotIn .8s cubic-bezier(.17,.67,.37,1.04) forwards;
+}
+.slot-1{animation-delay:.2s;}
+.slot-2{animation-delay:.05s;}
+.slot-3{animation-delay:.35s;}
+@keyframes slotIn{from{opacity:0;transform:translateY(50px) scale(0.85);}to{opacity:1;transform:translateY(0) scale(1);}}
+
+
+.crown{
+  position: relative;
+  top: 22px;
+  margin-bottom: 0;
+  animation: crownFloat 2.5s ease-in-out infinite;
+  z-index: 20;
+}
+@keyframes crownFloat{0%,100%{transform:translateY(0) rotate(-1deg);}50%{transform:translateY(-8px) rotate(1deg);}}
+.crown svg{filter:drop-shadow(0 0 12px rgba(255,204,0,0.8));}
+
+
+.av-wrap{position:relative;cursor:default;}
+.av-glow{
+  position:absolute;inset:-12px;border-radius:50%;
+  animation:glowPulse 3s ease-in-out infinite;
+  filter:blur(16px);
+}
+.slot-1 .av-glow{background:radial-gradient(circle,#ffcc00 0%,transparent 75%);}
+.slot-2 .av-glow{background:radial-gradient(circle,#cc0000 0%,transparent 75%);}
+.slot-3 .av-glow{background:radial-gradient(circle,#aaaaaa 0%,transparent 75%);}
+@keyframes glowPulse{0%,100%{opacity:.4;transform:scale(1);}50%{opacity:.8;transform:scale(1.15);}}
+
+
+.rotating-border {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  padding: 4px;
+  background: conic-gradient(from 0deg, transparent, currentColor, transparent);
+  animation: rotateBorder 3s linear infinite;
+  z-index: 1;
+}
+
+@keyframes rotateBorder {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.slot-1 .rotating-border { color: #ffcc00; }
+.slot-2 .rotating-border { color: #cc0000; }
+.slot-3 .rotating-border { color: #aaaaaa; }
+/* ----------------------------------- */
+
+.av {
+  border-radius:50%;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  z-index:2;
+  box-shadow:0 8px 25px rgba(0,0,0,0.5);
+  background: #000; 
+}
+
+
+.slot-1 .av{width:95px;height:95px;border:3px solid #ffcc00;}
+.slot-2 .av{width:76px;height:76px;border:2px solid #cc0000;}
+.slot-3 .av{width:76px;height:76px;border:2px solid #888888;}
+
+.av img{width:100%;height:100%;object-fit:cover;image-rendering: -webkit-optimize-contrast;}
+
+.rank-circle{
+  position:absolute;bottom:-4px;right:-4px;z-index:5;
+  width:28px;height:28px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:900;
+  border:2px solid #000;
+}
+.slot-1 .rank-circle{background:linear-gradient(135deg,#FFD700,#FF9900);color:#332200;box-shadow:0 0 10px #ffcc00;}
+.slot-2 .rank-circle{background:linear-gradient(135deg,#cc0000,#660000);color:#fff;}
+.slot-3 .rank-circle{background:linear-gradient(135deg,#888,#444);color:#fff;}
+
+
+.info{text-align:center;margin-top:10px;z-index:5;}
+.uname{
+  font-size:15px;font-weight:900;
+  text-shadow:0 2px 8px rgba(0,0,0,0.8);
+  margin-bottom:2px;
+}
+.slot-1 .uname{color:#ffea88;font-size:17px;}
+.slot-2 .uname{color:#ff7777;}
+.slot-3 .uname{color:#eeeeee;}
+
+.score{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:18px;font-weight:900;
+  direction:ltr;
+}
+.slot-1 .score{color:#FFD700;filter:drop-shadow(0 0 10px rgba(255,204,0,0.5));}
+.slot-2 .score{color:#ff4444;}
+.slot-3 .score{color:#bbbbbb;}
+
+
+.ped{
+  margin-top:12px;border-radius:12px 12px 0 0;
+  position:relative;overflow:hidden;
+  display:flex;align-items:flex-start;justify-content:center;
+  padding-top:12px;
+  backdrop-filter: blur(4px);
+}
+.slot-1 .ped{
+  width:135px;height:140px;
+  background:linear-gradient(180deg,rgba(255,204,0,0.3) 0%,rgba(0,0,0,0.4) 100%);
+  border:2px solid rgba(255,204,0,0.5);border-bottom:none;
+}
+.slot-2 .ped{
+  width:115px;height:100px;
+  background:linear-gradient(180deg,rgba(200,0,0,0.3) 0%,rgba(0,0,0,0.4) 100%);
+  border:2px solid rgba(200,0,0,0.4);border-bottom:none;
+}
+.slot-3 .ped{
+  width:115px;height:75px;
+  background:linear-gradient(180deg,rgba(150,150,150,0.2) 0%,rgba(0,0,0,0.4) 100%);
+  border:2px solid rgba(150,150,150,0.3);border-bottom:none;
+}
+
+.ped-badge{
+  width:42px;height:42px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;font-weight:900;
+  box-shadow:0 4px 10px rgba(0,0,0,0.5);
+}
+.slot-1 .ped-badge{background:linear-gradient(135deg,#FFD700,#CC8800);color:#442200;}
+.slot-2 .ped-badge{background:linear-gradient(135deg,#cc0000,#880000);color:#fff;}
+.slot-3 .ped-badge{background:linear-gradient(135deg,#888,#444);color:#fff;}
+
+
+.sparks{position:absolute;inset:-20px;pointer-events:none;z-index:6;}
+.spark{position:absolute;border-radius:50%;animation:sparkA 2.5s ease-in-out infinite;box-shadow:0 0 8px currentColor;}
+@keyframes sparkA{0%,100%{opacity:0;transform:scale(0) translate(0,0);}40%{opacity:1;transform:scale(1.2) translate(var(--tx),var(--ty));}100%{opacity:0;transform:scale(0) translate(var(--tx2),var(--ty2));}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="particles" id="pts"></div>
+  <div class="floor-glow"></div>
+
+  <div class="slot slot-2">
+    <div class="av-wrap">
+      <div class="av-glow"></div>
+      <div class="rotating-border"></div>
+      <div class="av">
+        <img src="https://i.postimg.cc/bNwnJKdV/Whats-App-Image-2026-04-01-at-10-38-16-PM.jpg">
+      </div>
+      <div class="rank-circle">2</div>
+    </div>
+    <div class="info">
+      <div class="uname">𝓢𝓐𝓛𝓘𝓗</div>
+      <div class="score"><span>268.1K</span> 🪙</div>
+    </div>
+    <div class="ped"><div class="ped-badge">2</div></div>
+  </div>
+
+  <div class="slot slot-1">
+    <div class="crown">
+      <svg width="60" height="42" viewBox="0 0 56 38">
+        <defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFF3AA"/><stop offset="100%" stop-color="#CC8800"/></linearGradient></defs>
+        <path d="M6 34L6 22L16 6L28 19L40 6L50 22L50 34Z" fill="url(#cg)" stroke="#CC8800" stroke-width="1.2"/>
+        <circle cx="6"  cy="22" r="4" fill="url(#cg)" stroke="#CC8800"/>
+        <circle cx="50" cy="22" r="4" fill="url(#cg)" stroke="#CC8800"/>
+        <circle cx="28" cy="18" r="5" fill="url(#cg)" stroke="#CC8800"/>
+        <rect x="6" y="31" width="44" height="6" rx="3" fill="#CC8800"/>
+      </svg>
+    </div>
+    <div class="av-wrap">
+      <div class="av-glow"></div>
+      <div class="rotating-border"></div>
+      <div class="sparks" id="sparks"></div>
+      <div class="av">
+        <img src="https://i.postimg.cc/g0mmcP2X/download-(8).jpg">
+      </div>
+      <div class="rank-circle">1</div>
+    </div>
+    <div class="info">
+      <div class="uname">𝓐𝓓𝓐𝓜</div>
+      <div class="score"><span>293.4K</span> 🪙</div>
+    </div>
+    <div class="ped"><div class="ped-badge">1</div></div>
+  </div>
+
+  <div class="slot slot-3">
+    <div class="av-wrap">
+      <div class="av-glow"></div>
+      <div class="rotating-border"></div>
+      <div class="av">
+        <img src="https://i.postimg.cc/t4HHDHPw/download-(79).jpg">
+      </div>
+      <div class="rank-circle">3</div>
+    </div>
+    <div class="info">
+      <div class="uname">Arlen</div>
+      <div class="score"><span>247.4K</span> 🪙</div>
+    </div>
+    <div class="ped"><div class="ped-badge">3</div></div>
+  </div>
+</div>
+
+<script>
+
+const pts = document.getElementById('pts');
+for(let i=0;i<20;i++){
+  const p=document.createElement('div');p.className='p';
+  const size=Math.random()*3+2;
+  p.style.cssText=`width:${size}px;height:${size}px;left:${Math.random()*100}%;bottom:0;background:${Math.random()>.5?'#ff3333':'#ffcc00'};--d:${3+Math.random()*3}s;--dl:${-Math.random()*4}s;opacity:.5`;
+  pts.appendChild(p);
+}
+
+
+const sp=document.getElementById('sparks');
+const sc=['#FFD700','#ffffff','#ff5555'];
+for(let i=0;i<8;i++){
+  const s=document.createElement('div');s.className='spark';
+  const tx=(Math.random()-0.5)*60;
+  const ty=(Math.random()-0.5)*60;
+  s.style.cssText=`width:4px;height:4px;left:50%;top:50%;background:${sc[i%3]};--tx:${tx}px;--ty:${ty}px;--tx2:${tx*1.5}px;--ty2:${ty*1.5}px;animation-delay:${Math.random()*2}s`;
+  sp.appendChild(s);
+}
+</script>
+</body>
+</html>
